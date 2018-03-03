@@ -1,2 +1,14 @@
+certifi==2018.1.18
+chardet==3.0.4
 Django==1.11.10
+ecdsa==0.13
+enum34==1.1.6
+future==0.16.0
+idna==2.6
+opentok==2.6.0
+pycryptodome==3.4.11
+python-jose==2.0.2
 pytz==2018.3
+requests==2.18.4
+six==1.11.0
+urllib3==1.22

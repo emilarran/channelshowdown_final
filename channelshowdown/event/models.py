@@ -11,6 +11,12 @@ EVENT_STATUS = (
     (2, 'Finished')
 )
 
+ENTRY_STATUS = (
+    (0, 'Pending'),
+    (1, 'Rejected'),
+    (2, 'Accepted')
+)
+
 
 class Event(models.Model):
     event_name = models.CharField(max_length=100)
@@ -36,3 +42,6 @@ class Entry(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='entry')
+    entry_status = models.PositiveSmallIntegerField(
+        choices=ENTRY_STATUS,
+        default=0)

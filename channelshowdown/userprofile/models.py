@@ -11,3 +11,4 @@ class UserInfo(models.Model):
     user = models.OneToOneField(User)
     is_commentator = models.BooleanField()
     user_video = models.FileField(upload_to='uploads/')
+    bio = models.CharField(max_length=100)

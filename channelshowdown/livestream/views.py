@@ -16,14 +16,26 @@ opentok = OpenTok(api_key, api_secret)
 class StartLiveStreamView(View):
     def get(self, request, **kwargs):
         session = opentok.create_session(media_mode=MediaModes.routed)
-        context = {'session_id': session.session_id}
+        token = opentok.generate_token(session.session_id, role=Roles.moderator)
+        context = {
+            'session_id': session.session_id,
+            'token_id': token
+        }
         # return HttpResponse(json.dumps(session.session_id), 'text/json')
         return JsonResponse(context)
 
 
-class GetTokenModerator(View):
+class GetTokenPublisher(View):
     def get(self, request, **kwargs):
         session = request.GET['session_id']
-        token = opentok.generate_token(session, role=Roles.moderator)
+        token = opentok.generate_token(session, role=Roles.publisher)
+        context = {'token_id': token}
+        return JsonResponse(context)
+
+
+class GetTokenSubscriber(View):
+    def get(self, request, **kwargs):
+        session = request.GET['session_id']
+        token = opentok.generate_token(session, role=Roles.subscriber)
         context = {'token_id': token}
         return JsonResponse(context)

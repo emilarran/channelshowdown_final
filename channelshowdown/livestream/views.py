@@ -4,6 +4,7 @@ from opentok import OpenTok, Roles, MediaModes
 from django.views.generic import View
 from django.http import HttpResponse, JsonResponse
 import json
+from .models import Episode
 
 # Create your views here.
 
@@ -16,13 +17,25 @@ opentok = OpenTok(api_key, api_secret)
 class StartLiveStreamView(View):
     def get(self, request, **kwargs):
         session = opentok.create_session(media_mode=MediaModes.routed)
-        token = opentok.generate_token(session.session_id, role=Roles.moderator)
+        token = opentok.generate_token(session.session_id,
+                                       role=Roles.moderator)
+        archive = opentok.start_archive(session.session_id)
+        episode = Episode(event=request.GET['event'],
+                          session_id=session,
+                          archive_id=archive.id)
+        episode.save()
         context = {
+            'event': request.GET['event'],
             'session_id': session.session_id,
-            'token_id': token
+            'token_id': token,
+            'archive_id': archive.id
         }
         # return HttpResponse(json.dumps(session.session_id), 'text/json')
         return JsonResponse(context)
+
+
+# class EndLiveStream(View):
+#     def get(self, request, **kwargs):
 
 
 class GetTokenPublisher(View):

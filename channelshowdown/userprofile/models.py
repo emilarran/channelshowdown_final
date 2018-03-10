@@ -9,6 +9,6 @@ from django.contrib.auth.models import User
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User)
-    is_commentator = models.BooleanField()
+    user_type = models.CharField(max_length=50)
     user_video = models.FileField(upload_to='uploads/')
     bio = models.CharField(max_length=100)

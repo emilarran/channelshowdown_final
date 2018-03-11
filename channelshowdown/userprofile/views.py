@@ -69,4 +69,4 @@ class LoginView(View):
 class LogoutView(View):
     def post(self, request, **kwargs):
         logout(request)
-        HttpRespose("logged out")
+        return HttpRespose("logged out")

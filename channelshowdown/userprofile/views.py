@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import UserInfo
 # Create your views here.
@@ -69,4 +69,4 @@ class LoginView(View):
 class LogoutView(View):
     def post(self, request, **kwargs):
         logout(request)
-        return HttpRespose("logged out")
+        return HttpResponse("logged out")

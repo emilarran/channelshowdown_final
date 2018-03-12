@@ -53,13 +53,14 @@ class LoginView(View):
         password = request.POST.get('password', None)
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            login(request, user)
             userinfo = UserInfo.objects.get(user=user.id)
             context = {
                 'username': user.username,
                 'email': user.email,
                 'userType': userinfo.user_type,
+                'session_key': request.session.session_key
             }
-            login(request, user)
             return JsonResponse(context)
         else:
             return HttpResponseNotFound("login failed")
@@ -68,5 +69,6 @@ class LoginView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(View):
     def post(self, request, **kwargs):
+        import pdb; pdb.set_trace()
         logout(request)
         return HttpResponse("logged out")

@@ -9,12 +9,20 @@ from django.utils import timezone
 import datetime
 # Create your views here.
 
+
 class CreateEvent(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
+        context = {}
         event_name = request.POST.get('event_name', None)
         date_created = timezone.now()
         date_event = request.POST.get('date_event', None).isoformat()
         creator = request.user.id
         status = 0
-
-        
+        event = Event(event_name=event_name,
+                      date_created=date_created,
+                      date_event=date_event,
+                      creator=creator,
+                      status=status)
+        event.save()
+        context['status'] = "created"
+        return JsonResponse(context)

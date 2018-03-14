@@ -59,7 +59,10 @@ class LoginView(View):
                 'username': user.username,
                 'email': user.email,
                 'userType': userinfo.user_type,
-                'session_key': request.session.session_key
+                'session_key': request.session.session_key,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'bio': userinfo.bio,
             }
             return JsonResponse(context)
         else:
@@ -69,6 +72,28 @@ class LoginView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(View):
     def post(self, request, **kwargs):
-        import pdb; pdb.set_trace()
         logout(request)
-        return HttpResponse("logged out")
+        context = {'status': "logged out"}
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class EditUserView(View):
+    def post(self, request, **kwargs):
+        username = request.POST.get('username', None)
+        bio = request.POST.get('bio', None)
+        firstname = request.POST.get('firstName', None)
+        lastname = request.POST.get('lastName', None)
+        user = User.objects.get(username=username)
+        userinfo = UserInfo.objects.get(user=user.id)
+        userinfo.bio = bio
+        user.first_name = firstname
+        user.last_name = lastname
+        user.save()
+        userinfo.save()
+        context = {
+            'bio': bio,
+            'firstName': firstname,
+            'lastName': lastname,
+        }
+        return JsonResponse(context)

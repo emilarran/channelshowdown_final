@@ -1,6 +1,6 @@
 from django.conf.urls import url
-from .views import 
+from .views import CreateEventView
 
 urlpatterns = [
-    url(r'^createevent/$', , name='createevent'),
+    url(r'^createevent/$', CreateEventView.as_view(), name='createevent'),
 ]

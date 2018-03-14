@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
@@ -9,6 +10,7 @@ from django.contrib.auth.models import User
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User)
+    profile_pic = models.ImageField()
     user_type = models.CharField(max_length=50)
     user_video = models.FileField(upload_to='uploads/')
-    bio = models.CharField(max_length=100)
+    bio = models.CharField(max_length=120)

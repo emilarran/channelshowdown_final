@@ -20,6 +20,8 @@ ENTRY_STATUS = (
 
 class Event(models.Model):
     event_name = models.CharField(max_length=100)
+    description = models.CharField(max_length=300)
+    prize = models.CharField(max_length=100)
     date_created = models.DateTimeField()
     date_event = models.DateTimeField()
     creator = models.ForeignKey(User, related_name='event_creator')
@@ -34,11 +36,11 @@ class Event(models.Model):
 
 
 class Entry(models.Model):
-    event_id = models.ForeignKey(
+    event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
         related_name='entry')
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='entry')

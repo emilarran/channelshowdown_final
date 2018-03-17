@@ -22,7 +22,8 @@ class CreateEventView(View):
         description = request.POST.get('eventDescription', None)
         date_created = timezone.now()
         date_event = parse_datetime(request.POST.get('eventDate', None))
-        creator = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        creator = request.POST.get('user', None)
         prize = request.POST.get('prize', None)
         # creator = request.user.id
         status = 0

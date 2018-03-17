@@ -8,6 +8,7 @@ from django.views.generic import View
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from .models import Event, Entry
 import datetime
 # Create your views here.
@@ -17,16 +18,20 @@ import datetime
 class CreateEventView(View):
     def post(self, request, **kwargs):
         context = {}
-        event_name = request.POST.get('event_name', None)
+        event_name = request.POST.get('eventName', None)
+        description = request.POST.get('eventDescription', None)
         date_created = timezone.now()
-        date_event = request.POST.get('date_event', None).isoformat()
+        date_event = parse_datetime(request.POST.get('eventDate', None))
         creator = request.POST.get('username', None)
+        prize = request.POST.get('prize', None)
         # creator = request.user.id
         status = 0
         event = Event(event_name=event_name,
+                      description=description,
                       date_created=date_created,
                       date_event=date_event,
                       creator=creator,
+                      prize=prize,
                       status=status)
         event.save()
         context['status'] = "created"

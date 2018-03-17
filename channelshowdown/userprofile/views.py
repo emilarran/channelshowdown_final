@@ -14,10 +14,10 @@ from .models import UserInfo
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegistrationView(View):
-    def get(self, request, **kwargs):
-        username = request.GET.get('username', None)
-        password = request.GET.get('password', None)
-        email = request.GET.get('email', None)
+    def post(self, request, **kwargs):
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+        email = request.POST.get('email', None)
         # password = request.POST['password']
         # email = request.POST['email']
         # User.objects.create(username=username, password=password, email=email)
@@ -33,10 +33,10 @@ class RegistrationView(View):
             user.email = email
             user.save()
             context['user_id'] = user.id
-            if request.GET.get('userType', None) == "normal":
+            if request.POST.get('userType', None) == "normal":
                 userinfo = UserInfo(user_id=user.id, user_type="normal")
                 userinfo.save()
-            elif request.GET.get('userType', None) == "commentator":
+            elif request.POST.get('userType', None) == "commentator":
                 userinfo = UserInfo(user_id=user.id, user_type="commentator")
                 userinfo.save()
             context['status'] = "registered"
@@ -112,3 +112,7 @@ class UserProfileView(View):
             'bio': userinfo.bio,
         }
         return JsonResponse(context)
+
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class UploadVideoView(View)

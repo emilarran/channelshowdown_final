@@ -25,8 +25,14 @@ class Event(models.Model):
     date_created = models.DateTimeField()
     date_event = models.DateTimeField()
     creator = models.ForeignKey(User, related_name='event_creator')
-    contestant1 = models.ForeignKey(User, related_name='event_contestant1')
-    contestant2 = models.ForeignKey(User, related_name='event_contestant2')
+    contestant1 = models.ForeignKey(User,
+                                    null=True,
+                                    blank=True,
+                                    related_name='event_contestant1')
+    contestant2 = models.ForeignKey(User,
+                                    null=True,
+                                    blank=True,
+                                    related_name='event_contestant2')
     votes_contestant1 = models.PositiveIntegerField(default=0)
     votes_contestant2 = models.PositiveIntegerField(default=0)
     status = models.PositiveSmallIntegerField(choices=EVENT_STATUS, default=0)

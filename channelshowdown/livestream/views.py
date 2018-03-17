@@ -38,7 +38,7 @@ class StartLiveStreamView(View):
 #     def get(self, request, **kwargs):
 
 
-class GetTokenPublisher(View):
+class GetTokenPublisherView(View):
     def get(self, request, **kwargs):
         session = request.GET['session_id']
         token = opentok.generate_token(session, role=Roles.publisher)
@@ -46,7 +46,7 @@ class GetTokenPublisher(View):
         return JsonResponse(context)
 
 
-class GetTokenSubscriber(View):
+class GetTokenSubscriberView(View):
     def get(self, request, **kwargs):
         session = request.GET['session_id']
         token = opentok.generate_token(session, role=Roles.subscriber)

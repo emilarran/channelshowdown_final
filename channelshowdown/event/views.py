@@ -22,8 +22,7 @@ class CreateEventView(View):
         description = request.POST.get('eventDescription', None)
         date_created = timezone.now()
         date_event = parse_datetime(request.POST.get('eventDate', None))
-        user = User.objects.get(username=username)
-        creator = request.POST.get('user', None)
+        user = User.objects.get(username=request.POST.get('username', None))
         prize = request.POST.get('prize', None)
         # creator = request.user.id
         status = 0
@@ -31,7 +30,7 @@ class CreateEventView(View):
                       description=description,
                       date_created=date_created,
                       date_event=date_event,
-                      creator=creator,
+                      creator=user,
                       prize=prize,
                       status=status)
         event.save()
@@ -56,7 +55,7 @@ class SendEntryView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AllEntriesView(View):
-    def post(self, request, **kwargs):
+    def get(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
         entries = Entry.objects.filter(event_id=event_id)
         context = {
@@ -66,8 +65,39 @@ class AllEntriesView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class UpcomingEventsView(View):
+    def get(self, request, **kwargs):
+        events = Event.objects.filter(status='Upcoming')
+        context = {
+            'event': events
+        }
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OngoingEventsView(View):
+    def get(self, request, **kwargs):
+        events = Event.objects.filter(status='Ongoing')
+        context = {
+            'event': events
+        }
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class FinishedEventsView(View):
+    def get(self, request, **kwargs):
+        events = Event.objects.filter(status='Finished')
+        context = {
+            'event': events
+        }
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class ApproveEntryView(View):
     def post(self, request, **kwargs):
+        context = {}
         entry_id = request.POST.get('entry_id', None)
         entry = Entry.objects.get(id=entry_id)
         event = Event.objects.get(id=entry.event.id)

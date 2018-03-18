@@ -11,6 +11,6 @@ class Episode(models.Model):
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name='episode')
+        related_name='episodes')
     session_id = models.CharField(max_length=200)
     archive_id = models.CharField(max_length=200)

@@ -25,7 +25,6 @@ class RegistrationView(View):
         user, created = User.objects.get_or_create(username=username)
         context = {
             'username': username,
-            'password': password,
             'email': email,
         }
         if created:

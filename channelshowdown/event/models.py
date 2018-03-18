@@ -22,7 +22,7 @@ class Event(models.Model):
     event_name = models.CharField(max_length=100)
     description = models.CharField(max_length=300)
     prize = models.CharField(max_length=100)
-    date_created = models.DateTimeField()
+    date_created = models.DateTimeField(auto_now_add=True)
     date_event = models.DateTimeField()
     creator = models.ForeignKey(User, related_name='event_creator')
     contestant1 = models.ForeignKey(User,
@@ -45,11 +45,11 @@ class Entry(models.Model):
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name='entry')
+        related_name='entries')
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='entry')
+        related_name='entries')
     entry_status = models.PositiveSmallIntegerField(
         choices=ENTRY_STATUS,
         default=0)

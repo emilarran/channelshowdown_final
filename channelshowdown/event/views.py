@@ -20,7 +20,7 @@ class CreateEventView(View):
         context = {}
         event_name = request.POST.get('eventName', None)
         description = request.POST.get('eventDescription', None)
-        date_created = timezone.now()
+        # date_created = timezone.now()
         date_event = parse_datetime(request.POST.get('eventDate', None))
         user = User.objects.get(username=request.POST.get('username', None))
         prize = request.POST.get('prize', None)
@@ -28,7 +28,7 @@ class CreateEventView(View):
         status = 0
         event = Event(event_name=event_name,
                       description=description,
-                      date_created=date_created,
+                      # date_created=date_created,
                       date_event=date_event,
                       creator=user,
                       prize=prize,
@@ -57,7 +57,7 @@ class SendEntryView(View):
 class AllEntriesView(View):
     def get(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
-        entries = Entry.objects.filter(event_id=event_id)
+        entries = list(Entry.objects.filter(event_id=event_id).values())
         context = {
             'entry': entries
         }
@@ -67,7 +67,7 @@ class AllEntriesView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class UpcomingEventsView(View):
     def get(self, request, **kwargs):
-        events = Event.objects.filter(status='Upcoming')
+        events = list(Event.objects.filter(status=0).values())
         context = {
             'event': events
         }
@@ -77,7 +77,7 @@ class UpcomingEventsView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class OngoingEventsView(View):
     def get(self, request, **kwargs):
-        events = Event.objects.filter(status='Ongoing')
+        events = list(Event.objects.filter(status=1).values())
         context = {
             'event': events
         }
@@ -87,7 +87,7 @@ class OngoingEventsView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class FinishedEventsView(View):
     def get(self, request, **kwargs):
-        events = Event.objects.filter(status='Finished')
+        events = list(Event.objects.filter(status=2).values())
         context = {
             'event': events
         }

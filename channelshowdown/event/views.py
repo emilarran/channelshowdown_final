@@ -9,6 +9,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.forms.models import model_to_dict
 from .models import Event, Entry
 import datetime
 # Create your views here.
@@ -71,6 +72,20 @@ class UpcomingEventsView(View):
         context = {
             'event': events
         }
+        for event in context['event']:
+            event['date_event'] = event['date_event'].replace(tzinfo=None)
+            user = User.objects.get(pk=event['creator_id'])
+            event['creator_name'] = user.username
+            if event['contestant1_id'] is not None:
+                user = User.objects.get(pk=event['contestant1_id'])
+                event['contestant1_name'] = user.username
+            else:
+                event['contestant1_name'] = ""
+            if event['contestant2_id'] is not None:
+                user = User.objects.get(pk=event['contestant2_id'])
+                event['contestant2_name'] = user.username
+            else:
+                event['contestant2_name'] = ""
         return JsonResponse(context)
 
 
@@ -81,6 +96,8 @@ class OngoingEventsView(View):
         context = {
             'event': events
         }
+        for event in context['event']:
+            event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 
 
@@ -91,6 +108,8 @@ class FinishedEventsView(View):
         context = {
             'event': events
         }
+        for event in context['event']:
+            event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 
 
@@ -103,3 +122,42 @@ class ApproveEntryView(View):
         event = Event.objects.get(id=entry.event.id)
         if event.contestant1:
             return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatorEventProfileView(View):
+    def post(self, request, **kwargs):
+        username = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        event = Event.objects.get(
+            creator_id=user.id,
+            status__lte=1,
+            status__gte=0)
+        eventdict = model_to_dict(event)
+        eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
+        eventdict['creator_name'] = event.creator.username
+        if eventdict['contestant1'] is not None:
+            user = User.objects.get(pk=eventdict['contestant1'])
+            eventdict['contestant1_name'] = user.username
+        else:
+            eventdict['contestant1_name'] = ""
+        if eventdict['contestant2'] is not None:
+            user = User.objects.get(pk=eventdict['contestant2'])
+            eventdict['contestant2_name'] = user.username
+        else:
+            eventdict['contestant2_name'] = ""
+        context = {
+            'event': eventdict
+        }
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class EventProfileView(View):
+    def post(self, request, **kwargs):
+        event_id = request.POST.get('event_id', None)
+        event = model_to_dict(Event.objects.get(id=event_id))
+        context = {
+            'event': event
+        }
+        return JsonResponse(context)

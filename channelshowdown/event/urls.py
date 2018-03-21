@@ -3,7 +3,9 @@ from .views import (
     CreateEventView,
     UpcomingEventsView,
     OngoingEventsView,
-    FinishedEventsView
+    FinishedEventsView,
+    EventProfileView,
+    CreatorEventProfileView
 )
 
 urlpatterns = [
@@ -17,4 +19,10 @@ urlpatterns = [
     url(r'^finishedevents/$',
         FinishedEventsView.as_view(),
         name='finishedevents'),
+    url(r'^eventprofile/$',
+        EventProfileView.as_view(),
+        name='eventprofile'),
+    url(r'^creatoreventprofile/$',
+        CreatorEventProfileView.as_view(),
+        name='creatoreventprofile')
 ]

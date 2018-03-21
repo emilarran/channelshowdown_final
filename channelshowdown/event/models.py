@@ -19,20 +19,22 @@ ENTRY_STATUS = (
 
 
 class Event(models.Model):
-    event_name = models.CharField(max_length=100)
-    description = models.CharField(max_length=300)
-    prize = models.CharField(max_length=100)
+    event_name = models.CharField(max_length=100, blank=False, null=False)
+    description = models.CharField(max_length=300, blank=False, null=False)
+    prize = models.CharField(max_length=100, blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True)
-    date_event = models.DateTimeField()
+    date_event = models.DateTimeField(blank=False, null=False)
     creator = models.ForeignKey(User, related_name='event_creator')
     contestant1 = models.ForeignKey(User,
                                     null=True,
                                     blank=True,
-                                    related_name='event_contestant1')
+                                    related_name='event_contestant1',
+                                    default="")
     contestant2 = models.ForeignKey(User,
                                     null=True,
                                     blank=True,
-                                    related_name='event_contestant2')
+                                    related_name='event_contestant2',
+                                    default="")
     votes_contestant1 = models.PositiveIntegerField(default=0)
     votes_contestant2 = models.PositiveIntegerField(default=0)
     status = models.PositiveSmallIntegerField(choices=EVENT_STATUS, default=0)

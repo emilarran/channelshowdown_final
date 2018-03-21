@@ -33,10 +33,10 @@ class RegistrationView(View):
             user.save()
             context['user_id'] = user.id
             if request.POST.get('userType', None) == "normal":
-                userinfo = UserInfo(user_id=user.id, user_type="normal")
+                userinfo = UserInfo(user_id=user.id, user_type=0)
                 userinfo.save()
             elif request.POST.get('userType', None) == "commentator":
-                userinfo = UserInfo(user_id=user.id, user_type="commentator")
+                userinfo = UserInfo(user_id=user.id, user_type=1)
                 userinfo.save()
             context['status'] = "registered"
             return JsonResponse(context)

@@ -65,7 +65,7 @@ class LoginView(View):
             }
             return JsonResponse(context)
         else:
-            return HttpResponseNotFound("login failed")
+            return HttpResponseNotFound("Login failed")
 
 
 @method_decorator(csrf_exempt, name='dispatch')

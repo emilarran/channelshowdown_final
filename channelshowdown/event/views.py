@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -46,21 +46,31 @@ class SendEntryView(View):
         event_id = request.POST.get('event_id', None)
         username = request.POST.get('username', None)
         user = User.objects.get(username=username)
-        entry = Entry(event_id=event_id,
-                      user_id=user.id,
-                      entry_status=0)
-        entry.save()
-        context['status'] = "created"
-        return JsonResponse(context)
+        # entry = Entry(event_id=event_id,
+        #               user_id=user.id,
+        #               entry_status=0)
+        # entry.save()
+        entry, created = Entry.objects.get_or_create(event_id=event_id,
+                                                     user_id=user.id,
+                                                     entry_status=0)
+        if created:
+            context['status'] = "Entry sent"
+            entry.save()
+            return JsonResponse(context)
+        else:
+            context['status'] = "You have already sent an entry"
+            return HttpResponseNotFound(context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AllEntriesView(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
         entries = list(Entry.objects.filter(event_id=event_id).values())
+        for entry in entries:
+            entry['username'] = User.objects.get(pk=entry['user_id']).username
         context = {
-            'entry': entries
+            'entries': entries
         }
         return JsonResponse(context)
 
@@ -70,9 +80,9 @@ class UpcomingEventsView(View):
     def get(self, request, **kwargs):
         events = list(Event.objects.filter(status=0).values())
         context = {
-            'event': events
+            'events': events
         }
-        for event in context['event']:
+        for event in context['events']:
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             user = User.objects.get(pk=event['creator_id'])
             event['creator_name'] = user.username
@@ -94,9 +104,9 @@ class OngoingEventsView(View):
     def get(self, request, **kwargs):
         events = list(Event.objects.filter(status=1).values())
         context = {
-            'event': events
+            'events': events
         }
-        for event in context['event']:
+        for event in context['events']:
             event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 
@@ -106,9 +116,9 @@ class FinishedEventsView(View):
     def get(self, request, **kwargs):
         events = list(Event.objects.filter(status=2).values())
         context = {
-            'event': events
+            'events': events
         }
-        for event in context['event']:
+        for event in context['events']:
             event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 

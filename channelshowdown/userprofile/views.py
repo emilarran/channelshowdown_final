@@ -102,15 +102,19 @@ class EditUserView(View):
 class UserProfileView(View):
     def post(self, request, **kwargs):
         username = request.POST.get('username', None)
-        user = User.objects.get(username=username)
-        userinfo = userinfo = UserInfo.objects.get(user=user.id)
-        context = {
-            'username': user.username,
-            'firstName': user.firstname,
-            'lastName': user.lastname,
-            'bio': userinfo.bio,
-        }
-        return JsonResponse(context)
+        try:
+            user = User.objects.get(username=username)
+            userinfo = userinfo = UserInfo.objects.get(user=user.id)
+            context = {
+                'username': user.username,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'bio': userinfo.bio,
+            }
+            return JsonResponse(context)
+        except User.DoesNotExist:
+            return HttpResponseNotFound("User not found")
+
 
 
 # @method_decorator(csrf_exempt, name='dispatch')

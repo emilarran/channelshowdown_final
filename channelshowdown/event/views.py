@@ -130,8 +130,43 @@ class ApproveEntryView(View):
         entry_id = request.POST.get('entry_id', None)
         entry = Entry.objects.get(id=entry_id)
         event = Event.objects.get(id=entry.event.id)
-        if event.contestant1:
-            return JsonResponse(context)
+        if entry.entry_status != 2:
+            if not event.contestant1:
+                event.contestant1 = entry.user
+                entry.entry_status = 2
+                entry.save()
+                event.save()
+                context['status'] = "Approved"
+                return JsonResponse(context)
+            elif not event.contestant2:
+                event.contestant2 = entry.user
+                entry.entry_status = 2
+                entry.save()
+                event.save()
+                context['status'] = "Approved"
+                return JsonResponse(context)
+            else:
+                return HttpResponseNotFound("Cannot approve entry")
+        else:
+            return HttpResponseNotFound("Entry already approved")
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class RejectEntryView(View):
+    def post(self, request, **kwargs):
+        context = {}
+        entry_id = request.POST.get('entry_id', None)
+        entry = Entry.objects.get(id=entry_id)
+        event = Event.objects.get(id=entry.event.id)
+        if event.contestant1_id == entry.user_id:
+            event.contestant1 = None
+        else:
+            event.contestant2 = None
+        entry.entry_status = 1
+        entry.save()
+        event.save()
+        context['status'] = "Rejected"
+        return JsonResponse(context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

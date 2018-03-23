@@ -8,6 +8,8 @@ from .views import (
     CreatorEventProfileView,
     SendEntryView,
     AllEntriesView,
+    ApproveEntryView,
+    RejectEntryView
 )
 
 urlpatterns = [
@@ -33,4 +35,10 @@ urlpatterns = [
     url(r'^allentries/$',
         AllEntriesView.as_view(),
         name='allentries'),
+    url(r'^approveentry/$',
+        ApproveEntryView.as_view(),
+        name='approveentry'),
+    url(r'^rejectentry/$',
+        RejectEntryView.as_view(),
+        name='rejectentry'),
 ]

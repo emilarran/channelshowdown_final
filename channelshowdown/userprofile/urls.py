@@ -5,6 +5,9 @@ from .views import (
     LogoutView,
     EditUserView,
     UserProfileView,
+    UploadProfPicView,
+    UploadVideoView,
+    UploadThumbnailView,
 )
 
 
@@ -14,4 +17,19 @@ urlpatterns = [
     url(r'^logout/$', LogoutView.as_view(), name='logout'),
     url(r'^edituser/$', EditUserView.as_view(), name='edituser'),
     url(r'^userprofile/$', UserProfileView.as_view(), name='userprofile'),
+    url(
+        r'^uploadprofpic/$',
+        UploadProfPicView.as_view(),
+        name='uploadprofpic'
+    ),
+    url(
+        r'^uploadvideo/$',
+        UploadVideoView.as_view(),
+        name='uploadvideo'
+    ),
+    url(
+        r'^uploadthumbnail/$',
+        UploadThumbnailView.as_view(),
+        name='uploadthumbnail'
+    ),
 ]

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.http import (
+    JsonResponse,
+    HttpResponseNotFound,
+    HttpResponseBadRequest
+)
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -26,14 +29,24 @@ class CreateEventView(View):
         user = User.objects.get(username=request.POST.get('username', None))
         prize = request.POST.get('prize', None)
         # creator = request.user.id
-        status = 0
-        event = Event(event_name=event_name,
-                      description=description,
-                      # date_created=date_created,
-                      date_event=date_event,
-                      creator=user,
-                      prize=prize,
-                      status=status)
+        event = Event.objects.get(
+            creator_id=user.id,
+            status__gte=0,
+            status__lte=1
+        )
+        if event is not None:
+            return HttpResponseBadRequest(
+                "You already have an upcoming or ongoing event right now"
+            )
+
+        event = Event(
+            event_name=event_name,
+            description=description,
+            # date_created=date_created,
+            date_event=date_event,
+            creator=user,
+            prize=prize,
+        )
         event.save()
         context['status'] = "created"
         return JsonResponse(context)
@@ -46,10 +59,6 @@ class SendEntryView(View):
         event_id = request.POST.get('event_id', None)
         username = request.POST.get('username', None)
         user = User.objects.get(username=username)
-        # entry = Entry(event_id=event_id,
-        #               user_id=user.id,
-        #               entry_status=0)
-        # entry.save()
         entry, created = Entry.objects.get_or_create(event_id=event_id,
                                                      user_id=user.id,
                                                      entry_status=0)
@@ -58,8 +67,7 @@ class SendEntryView(View):
             entry.save()
             return JsonResponse(context)
         else:
-            context['status'] = "You have already sent an entry"
-            return HttpResponseNotFound(context)
+            return HttpResponseBadRequest("You have already sent your entry")
 
 
 @method_decorator(csrf_exempt, name='dispatch')

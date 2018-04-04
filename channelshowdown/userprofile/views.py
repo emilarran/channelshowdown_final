@@ -17,38 +17,71 @@ from .models import UserInfo
 # from .forms import FileForm
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from .forms import RegistrationForm, EditUserForm
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegistrationView(View):
     def post(self, request, **kwargs):
-        username = request.POST.get('username', None)
-        password = request.POST.get('password', None)
-        email = request.POST.get('email', None)
-        # password = request.POST['password']
-        # email = request.POST['email']
-        # User.objects.create(username=username, password=password, email=email)
-        # user = authenticate(request, username=username, password=password)
-        user, created = User.objects.get_or_create(username=username)
         context = {
-            'username': username,
-            'email': email,
+            'username': request.POST.get('username', None),
+            'email': request.POST.get('email', None),
         }
-        if created:
-            user.set_password(password)
-            user.email = email
-            user.save()
-            context['user_id'] = user.id
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            user = User.objects.get(
+                username=request.POST.get('username', None)
+            )
+            userinfo = UserInfo.objects.get(
+                user=request.POST.get('user', user)
+            )
             if request.POST.get('userType', None) == "normal":
-                userinfo = UserInfo(user_id=user.id, user_type=0)
+                userinfo.user_type = 0
                 userinfo.save()
             elif request.POST.get('userType', None) == "commentator":
-                userinfo = UserInfo(user_id=user.id, user_type=1)
+                userinfo.user_type = 1
                 userinfo.save()
             context['status'] = "registered"
             return JsonResponse(context)
         else:
-            return HttpResponseBadRequest("Username already taken")
+            message = "Error: "
+            for error in form.errors:
+                message = message + form.errors[error][0] + " "
+            print message
+            return HttpResponseBadRequest("message")
+
+
+        # username = request.POST.get('username', None)
+        # password = request.POST.get('password', None)
+        # email = request.POST.get('email', None)
+        # # password = request.POST['password']
+        # # email = request.POST['email']
+        # # User.objects.create(username=username, password=password, email=email)
+        # # user = authenticate(request, username=username, password=password)
+        # user, created = User.objects.get_or_create(
+        #     username=username,
+        #     email=email
+        # )
+        # context = {
+        #     'username': username,
+        #     'email': email,
+        # }
+        # if created:
+        #     user.set_password(password)
+        #     user.email = email
+        #     user.save()
+        #     context['user_id'] = user.id
+        #     if request.POST.get('userType', None) == "normal":
+        #         userinfo = UserInfo(user_id=user.id, user_type=0)
+        #         userinfo.save()
+        #     elif request.POST.get('userType', None) == "commentator":
+        #         userinfo = UserInfo(user_id=user.id, user_type=1)
+        #         userinfo.save()
+        #     context['status'] = "registered"
+        #     return JsonResponse(context)
+        # else:
+        #     return HttpResponseBadRequest("Username/email already taken")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -96,22 +129,66 @@ class LogoutView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class EditUserView(View):
     def post(self, request, **kwargs):
-        username = request.POST.get('username', None)
-        bio = request.POST.get('bio', None)
-        firstname = request.POST.get('firstName', None)
-        lastname = request.POST.get('lastName', None)
-        user = User.objects.get(username=username)
-        user.userinfo.bio = bio
-        user.first_name = firstname
-        user.last_name = lastname
-        user.save()
-        user.userinfo.save()
-        context = {
-            'bio': bio,
-            'firstName': firstname,
-            'lastName': lastname,
-        }
-        return JsonResponse(context)
+        form = EditUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            bio = request.POST.get('bio', None)
+            firstname = request.POST.get('firstName', None)
+            lastname = request.POST.get('lastName', None)
+            context = {
+                'bio': bio,
+                'firstName': firstname,
+                'lastName': lastname,
+            }
+            # user = User.objects.get(username=username)
+            # user.userinfo.bio = bio
+            # user.first_name = firstname
+            # user.last_name = lastname
+            # user.save()
+            # user.userinfo.save()
+            # context = {
+            #     'bio': bio,
+            #     'firstName': firstname,
+            #     'lastName': lastname,
+            # }
+            return JsonResponse(context)
+        else:
+            message = "Error: "
+            for error in form.errors:
+                message = message + form.errors[error][0] + " "
+            print message
+            return HttpResponseBadRequest(message)
+
+    def get(self, request, **kwargs):
+        form = EditUserForm(request.GET)
+        if form.is_valid():
+            form.save()
+            bio = request.GET.get('bio', None)
+            firstname = request.GET.get('firstName', None)
+            lastname = request.GET.get('lastName', None)
+            context = {
+                'bio': bio,
+                'firstName': firstname,
+                'lastName': lastname,
+            }
+            # user = User.objects.get(username=username)
+            # user.userinfo.bio = bio
+            # user.first_name = firstname
+            # user.last_name = lastname
+            # user.save()
+            # user.userinfo.save()
+            # context = {
+            #     'bio': bio,
+            #     'firstName': firstname,
+            #     'lastName': lastname,
+            # }
+            return JsonResponse(context)
+        else:
+            message = "Error: "
+            for error in form.errors:
+                message = message + form.errors[error][0] + " "
+            print message
+            return HttpResponseBadRequest(message)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

@@ -1,5 +1,6 @@
+from django.contrib.auth.models import User
 from .models import UserInfo
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 import os
 
@@ -28,3 +29,9 @@ def delete_unused_userinfo_file(sender, instance, **kwargs):
     if (not old_thumb == new_thumb) & (not old_thumb.url == '/media/video_thumbnail/default_thumbnail.png'):
         if os.path.isfile(old_thumb.path):
             os.remove(old_thumb.path)
+
+
+@receiver(post_save, sender=User)
+def create_additional_user_data(sender, instance, created, **kwargs):
+    if created:
+        UserInfo.objects.create(user=instance)

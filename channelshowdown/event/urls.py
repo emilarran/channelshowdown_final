@@ -9,7 +9,8 @@ from .views import (
     SendEntryView,
     AllEntriesView,
     ApproveEntryView,
-    RejectEntryView
+    RejectEntryView,
+    UploadEventImageView,
 )
 
 urlpatterns = [
@@ -41,4 +42,7 @@ urlpatterns = [
     url(r'^rejectentry/$',
         RejectEntryView.as_view(),
         name='rejectentry'),
+    url(r'^uploadeventimage/$',
+        UploadEventImageView.as_view(),
+        name='uploadeventimage'),
 ]

@@ -38,6 +38,10 @@ class Event(models.Model):
     votes_contestant1 = models.PositiveIntegerField(default=0)
     votes_contestant2 = models.PositiveIntegerField(default=0)
     status = models.PositiveSmallIntegerField(choices=EVENT_STATUS, default=0)
+    event_image = models.ImageField(
+        upload_to='event_image/',
+        default='event_image/default.jpg',
+    )
 
     def __str__(self):
         return self.event_name

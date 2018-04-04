@@ -10,46 +10,26 @@ from django.http import (
     HttpResponseBadRequest
 )
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.forms.models import model_to_dict
 from .models import Event, Entry
+from .forms import EventCreationForm
+import pytz
 import datetime
-# Create your views here.
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateEventView(View):
     def post(self, request, **kwargs):
-        context = {}
-        event_name = request.POST.get('eventName', None)
-        description = request.POST.get('eventDescription', None)
-        # date_created = timezone.now()
-        date_event = parse_datetime(request.POST.get('eventDate', None))
-        user = User.objects.get(username=request.POST.get('username', None))
-        prize = request.POST.get('prize', None)
-        # creator = request.user.id
-        event = Event.objects.get(
-            creator_id=user.id,
-            status__gte=0,
-            status__lte=1
-        )
-        if event is not None:
-            return HttpResponseBadRequest(
-                "You already have an upcoming or ongoing event right now"
-            )
-
-        event = Event(
-            event_name=event_name,
-            description=description,
-            # date_created=date_created,
-            date_event=date_event,
-            creator=user,
-            prize=prize,
-        )
-        event.save()
-        context['status'] = "created"
-        return JsonResponse(context)
+        form = EventCreationForm(request.POST)
+        if form.is_valid():
+            return form.save()
+        else:
+            message = "Error: "
+            for error in form.errors:
+                message = message + form.errors[error][0] + " "
+                print(message)
+            return HttpResponseBadRequest(message)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -85,12 +65,15 @@ class AllEntriesView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UpcomingEventsView(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
         events = list(Event.objects.filter(status=0).values())
         context = {
             'events': events
         }
         for event in context['events']:
+            event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             user = User.objects.get(pk=event['creator_id'])
             event['creator_name'] = user.username
@@ -109,24 +92,30 @@ class UpcomingEventsView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class OngoingEventsView(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
         events = list(Event.objects.filter(status=1).values())
         context = {
             'events': events
         }
         for event in context['events']:
+            event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FinishedEventsView(View):
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
         events = list(Event.objects.filter(status=2).values())
         context = {
             'events': events
         }
         for event in context['events']:
+            event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
         return JsonResponse(context)
 
@@ -180,6 +169,8 @@ class RejectEntryView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class CreatorEventProfileView(View):
     def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
         username = request.POST.get('username', None)
         user = User.objects.get(username=username)
         event = Event.objects.get(
@@ -187,6 +178,7 @@ class CreatorEventProfileView(View):
             status__lte=1,
             status__gte=0)
         eventdict = model_to_dict(event)
+        eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
         eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
         eventdict['creator_name'] = event.creator.username
         if eventdict['contestant1'] is not None:
@@ -208,9 +200,47 @@ class CreatorEventProfileView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class EventProfileView(View):
     def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
         event_id = request.POST.get('event_id', None)
         event = model_to_dict(Event.objects.get(id=event_id))
+        event['date_event'] = event['date_event'].astimezone(timezone)
+        event['date_event'] = event['date_event'].replace(tzinfo=None)
         context = {
             'event': event
+        }
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class UploadEventImageView(View):
+    def post(self, request, **kwargs):
+        event_id = request.POST.get('event_id', None)
+        event = Event.objects.get(event_id=event_id)
+        image = request.FILES['event_image']
+        image_types = [
+            'image/png',
+            'image/jpg',
+            'image/jpeg',
+            'image/pjpeg'
+        ]
+        if image.content_type not in image_types:
+            return HttpResponseBadRequest("Invalid image file format")
+
+        if image.content_type == u'image/png':
+            image.name = event.event_name + u'.png'
+        elif image.content_type == u'image/jpg':
+            image.name = event.event_name + u'.jpg'
+        elif image.content_type == u'image/jpeg':
+            image.name = event.event_name + u'.jpeg'
+        elif image.content_type == u'image/pjpeg':
+            image.name = event.event_name + u'.pjpeg'
+
+        # image.name = username
+        event.event_image = image
+        event.save()
+        context = {
+            'status': "Event image successfully uploaded.",
+            'video_thumbnail': event.event_image.url,
         }
         return JsonResponse(context)

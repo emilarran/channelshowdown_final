@@ -36,4 +36,4 @@ class UserInfo(models.Model):
         # null=True,
         # # default=None
     )
-    bio = models.CharField(max_length=120, default="", blank=True)
+    bio = models.CharField(max_length=300, default="", blank=True)

@@ -12,6 +12,7 @@ from django.http import (
 from django.contrib.auth.models import User
 from django.utils.dateparse import parse_datetime
 from django.forms.models import model_to_dict
+from django.conf import settings
 from .models import Event, Entry
 from .forms import EventCreationForm
 import pytz
@@ -75,6 +76,7 @@ class UpcomingEventsView(View):
         for event in context['events']:
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
+            event['event_image'] = settings.MEDIA_URL + event['event_image']
             user = User.objects.get(pk=event['creator_id'])
             event['creator_name'] = user.username
             if event['contestant1_id'] is not None:
@@ -102,6 +104,7 @@ class OngoingEventsView(View):
         for event in context['events']:
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
+            event['event_image'] = settings.MEDIA_URL + event['event_image']
         return JsonResponse(context)
 
 
@@ -117,6 +120,7 @@ class FinishedEventsView(View):
         for event in context['events']:
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
+            event['event_image'] = settings.MEDIA_URL + event['event_image']
         return JsonResponse(context)
 
 
@@ -178,6 +182,7 @@ class CreatorEventProfileView(View):
             status__lte=1,
             status__gte=0)
         eventdict = model_to_dict(event)
+        eventdict['event_image'] = settings.MEDIA_URL + event['event_image']
         eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
         eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
         eventdict['creator_name'] = event.creator.username
@@ -206,6 +211,7 @@ class EventProfileView(View):
         event = model_to_dict(Event.objects.get(id=event_id))
         event['date_event'] = event['date_event'].astimezone(timezone)
         event['date_event'] = event['date_event'].replace(tzinfo=None)
+        event['event_image'] = settings.MEDIA_URL + event['event_image']
         context = {
             'event': event
         }
@@ -241,6 +247,6 @@ class UploadEventImageView(View):
         event.save()
         context = {
             'status': "Event image successfully uploaded.",
-            'video_thumbnail': event.event_image.url,
+            'event_image': event.event_image.url,
         }
         return JsonResponse(context)

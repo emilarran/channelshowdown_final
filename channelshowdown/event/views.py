@@ -182,7 +182,7 @@ class CreatorEventProfileView(View):
             status__lte=1,
             status__gte=0)
         eventdict = model_to_dict(event)
-        eventdict['event_image'] = settings.MEDIA_URL + event['event_image']
+        eventdict['event_image'] = eventdict['event_image'].url
         eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
         eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
         eventdict['creator_name'] = event.creator.username
@@ -222,8 +222,8 @@ class EventProfileView(View):
 class UploadEventImageView(View):
     def post(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
-        event = Event.objects.get(event_id=event_id)
-        image = request.FILES['event_image']
+        event = Event.objects.get(id=event_id)
+        image = request.FILES['image']
         image_types = [
             'image/png',
             'image/jpg',
@@ -250,3 +250,7 @@ class UploadEventImageView(View):
             'event_image': event.event_image.url,
         }
         return JsonResponse(context)
+
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class

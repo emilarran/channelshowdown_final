@@ -40,7 +40,7 @@ class Event(models.Model):
     status = models.PositiveSmallIntegerField(choices=EVENT_STATUS, default=0)
     event_image = models.ImageField(
         upload_to='event_image/',
-        default='event_image/default.jpg',
+        default='event_image/default.png',
     )
 
     def __str__(self):

@@ -1,4 +1,4 @@
-from .models import Event
+from .models import Event, Entry
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 import os
@@ -6,7 +6,6 @@ import os
 
 @receiver(pre_save, sender=Event)
 def delete_unused_eventinfo_file(sender, instance, **kwargs):
-    # import pdb; pdb.set_trace()
     if not instance.pk:
         return False
     try:
@@ -18,3 +17,8 @@ def delete_unused_eventinfo_file(sender, instance, **kwargs):
     if (not old_pic == new_pic) & (not old_pic.url == '/media/profile_image/default.jpg'):
         if os.path.isfile(old_pic.path):
             os.remove(old_pic.path)
+
+
+# @receiver(post_save, sender=Entry)
+# def create_notification(sender, instance, **kwargs):
+#     if not instance.pk

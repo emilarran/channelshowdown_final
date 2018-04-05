@@ -252,5 +252,51 @@ class UploadEventImageView(View):
         return JsonResponse(context)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class MyEventView(View):
+    def post(self, request, **kwargs):
+        username = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
+        try:
+            event = Event.objects.get(
+                contestant1=user,
+                status__gte=0,
+                status__lte=1
+            )
+        except Event.DoesNotExist:
+            try:
+                event = Event.objects.get(
+                    contestant1=user,
+                    status__gte=0,
+                    status__lte=1
+                )
+            except Event.DoesNotExist:
+                return HttpResponseBadRequest(
+                    "You do not have an event right now"
+                )
+        eventdict = model_to_dict(event)
+        eventdict['event_image'] = eventdict['event_image'].url
+        eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
+        eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
+        eventdict['creator_name'] = event.creator.username
+        if eventdict['contestant1'] is not None:
+            user = User.objects.get(pk=eventdict['contestant1'])
+            eventdict['contestant1_name'] = user.username
+        else:
+            eventdict['contestant1_name'] = ""
+        if eventdict['contestant2'] is not None:
+            user = User.objects.get(pk=eventdict['contestant2'])
+            eventdict['contestant2_name'] = user.username
+        else:
+            eventdict['contestant2_name'] = ""
+        context = {
+            'event': eventdict
+        }
+        return JsonResponse(context)
+
+
+
 # @method_decorator(csrf_exempt, name='dispatch')
 # class

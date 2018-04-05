@@ -11,6 +11,7 @@ from .views import (
     ApproveEntryView,
     RejectEntryView,
     UploadEventImageView,
+    MyEventView,
 )
 
 urlpatterns = [
@@ -45,4 +46,7 @@ urlpatterns = [
     url(r'^uploadeventimage/$',
         UploadEventImageView.as_view(),
         name='uploadeventimage'),
+    url(r'^myevent/$',
+        MyEventView.as_view(),
+        name='myevent'),
 ]

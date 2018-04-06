@@ -41,8 +41,7 @@ class SendEntryView(View):
         username = request.POST.get('username', None)
         user = User.objects.get(username=username)
         entry, created = Entry.objects.get_or_create(event_id=event_id,
-                                                     user_id=user.id,
-                                                     entry_status=0)
+                                                     user_id=user.id,)
         if created:
             context['status'] = "Entry sent"
             entry.save()

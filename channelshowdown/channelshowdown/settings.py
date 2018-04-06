@@ -40,10 +40,7 @@ INSTALLED_APPS = [
     'userprofile',
     'event',
     'livestream',
-    'celery',
 ]
-
-CELERY_BROKER_URL = 'amqp://localhost'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,4 +1,5 @@
 from .models import Event, Entry
+from userprofile.models import Notification
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 import os
@@ -19,6 +20,23 @@ def delete_unused_eventinfo_file(sender, instance, **kwargs):
             os.remove(old_pic.path)
 
 
-# @receiver(post_save, sender=Entry)
-# def create_notification(sender, instance, **kwargs):
-#     if not instance.pk
+@receiver(pre_save, sender=Entry)
+def create_notification_entry(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+    try:
+        old_status = Entry.objects.get(pk=instance.pk).entry_status
+    except Entry.DoesNotExist:
+        return False
+
+    new_status = instance.entry_status
+    if (old_status != new_status) & (old_status == 0 | old_status == 1):
+        notif = Notification(
+            user=instance.user,
+            message="Your entry for " + instance.event.event_name
+        )
+        if new_status == 1:
+            notif.message = notif.message + " has been rejected"
+        elif new_status == 2:
+            notif.message = notif.message + " has been accepted"
+        notif.save()

@@ -1,6 +1,6 @@
 from .models import Event, Entry
 from userprofile.models import Notification
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, pre_delete
 from django.dispatch import receiver
 import os
 
@@ -40,3 +40,24 @@ def create_notification_entry(sender, instance, **kwargs):
         elif new_status == 2:
             notif.message = notif.message + " has been accepted"
         notif.save()
+
+
+@receiver(pre_delete, sender=Entry)
+def clear_contestant(sender, instance, using, **kwargs):
+    try:
+        event = Event.objects.get(
+            contestant1=instance.user,
+            status=0
+        )
+        event.contestant1 = None
+        event.save()
+    except Event.DoesNotExist:
+        try:
+            event = Event.objects.get(
+                contestant2=instance.user,
+                status=0
+            )
+            event.contestant2 = None
+            event.save()
+        except Event.DoesNotExist:
+            return False

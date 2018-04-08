@@ -16,7 +16,6 @@ from django.conf import settings
 from .models import Event, Entry
 from .forms import EventCreationForm
 import pytz
-import datetime
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -222,6 +221,7 @@ class UploadEventImageView(View):
     def post(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
+        import pdb; pdb.set_trace()
         image = request.FILES['image']
         image_types = [
             'image/png',
@@ -267,7 +267,7 @@ class MyEventView(View):
         except Event.DoesNotExist:
             try:
                 event = Event.objects.get(
-                    contestant1=user,
+                    contestant2=user,
                     status__gte=0,
                     status__lte=1
                 )
@@ -295,6 +295,11 @@ class MyEventView(View):
         }
         return JsonResponse(context)
 
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class ChangeEventStatusView(View):
+#     def post(self, request, **kwargs):
+#         event 
 
 
 # @method_decorator(csrf_exempt, name='dispatch')

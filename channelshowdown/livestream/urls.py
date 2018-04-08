@@ -1,6 +1,10 @@
 from django.conf.urls import url
-from .views import StartLiveStreamView
-from .views import GetTokenPublisherView, GetTokenSubscriberView
+from .views import (
+    StartLiveStreamView,
+    GetTokenPublisherView,
+    GetTokenSubscriberView,
+    VoteView
+)
 
 urlpatterns = [
     url(r'^startlivestream/$', StartLiveStreamView.as_view(), name='session'),
@@ -10,5 +14,5 @@ urlpatterns = [
     url(r'^gettokensubscriber/$',
         GetTokenSubscriberView.as_view(),
         name='subscriber'),
-
+    url(r'^vote/$', VoteView.as_view(), name='vote')
 ]

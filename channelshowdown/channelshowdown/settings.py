@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'userprofile',
     'event',
     'livestream',
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,13 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+API_KEY = "46071272"
+API_SECRET = "54cb69236b6eabe260ff578144e5e4f31e3c7054"
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = '6379'
+BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
+

@@ -127,8 +127,14 @@ class ApproveEntryView(View):
     def post(self, request, **kwargs):
         context = {}
         entry_id = request.POST.get('entry_id', None)
-        entry = Entry.objects.get(id=entry_id)
-        event = Event.objects.get(id=entry.event.id)
+        try:
+            entry = Entry.objects.get(id=entry_id)
+            event = Event.objects.get(id=entry.event.id)
+        except Entry.DoesNotExist:
+            return HttpResponseNotFound("Entry does not exist.")
+        except Event.DoesNotExist:
+            return HttpResponseNotFound("Event not found.")
+
         if entry.entry_status != 2:
             if not event.contestant1:
                 event.contestant1 = entry.user
@@ -155,8 +161,14 @@ class RejectEntryView(View):
     def post(self, request, **kwargs):
         context = {}
         entry_id = request.POST.get('entry_id', None)
-        entry = Entry.objects.get(id=entry_id)
-        event = Event.objects.get(id=entry.event.id)
+        try:
+            entry = Entry.objects.get(id=entry_id)
+            event = Event.objects.get(id=entry.event.id)
+        except Entry.DoesNotExist:
+            return HttpResponseNotFound("Entry does not exist.")
+        except Event.DoesNotExist:
+            return HttpResponseNotFound("Event not found.")
+
         if event.contestant1_id == entry.user_id:
             event.contestant1 = None
         else:
@@ -175,10 +187,13 @@ class CreatorEventProfileView(View):
         timezone = pytz.timezone(timezone)
         username = request.POST.get('username', None)
         user = User.objects.get(username=username)
-        event = Event.objects.get(
-            creator_id=user.id,
-            status__lte=1,
-            status__gte=0)
+        try:
+            event = Event.objects.get(
+                creator_id=user.id,
+                status__lte=1,
+                status__gte=0)
+        except Event.DoesNotExist:
+            return HttpResponseNotFound("You have no events at the moment.")
         eventdict = model_to_dict(event)
         eventdict['event_image'] = eventdict['event_image'].url
         eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)

@@ -1,17 +1,13 @@
 from channelshowdown.celery import app
+from django.utils import timezone
 from .models import Event
-from datetime import datetime
 
 
 @app.task
 def check_event_date():
-    now = datetime.now()
-    events = Event.objects.filter(date_event__gte=now)
+    now = timezone.now()
+    events = Event.objects.filter(date_event__lte=now, status=0)
     for event in events:
+        print(event)
         event.status = 1
         event.save()
-
-
-# @app.task
-# def sample_task():
-#     print("this is a sample")

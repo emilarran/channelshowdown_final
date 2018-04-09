@@ -158,37 +158,6 @@ class EditUserView(View):
             print message
             return HttpResponseBadRequest(message)
 
-    def get(self, request, **kwargs):
-        form = EditUserForm(request.GET)
-        if form.is_valid():
-            form.save()
-            bio = request.GET.get('bio', None)
-            firstname = request.GET.get('firstName', None)
-            lastname = request.GET.get('lastName', None)
-            context = {
-                'bio': bio,
-                'firstName': firstname,
-                'lastName': lastname,
-            }
-            # user = User.objects.get(username=username)
-            # user.userinfo.bio = bio
-            # user.first_name = firstname
-            # user.last_name = lastname
-            # user.save()
-            # user.userinfo.save()
-            # context = {
-            #     'bio': bio,
-            #     'firstName': firstname,
-            #     'lastName': lastname,
-            # }
-            return JsonResponse(context)
-        else:
-            message = "Error: "
-            for error in form.errors:
-                message = message + form.errors[error][0] + " "
-            print message
-            return HttpResponseBadRequest(message)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserProfileView(View):

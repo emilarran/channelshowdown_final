@@ -3,7 +3,10 @@ from .views import (
     StartLiveStreamView,
     GetTokenPublisherView,
     GetTokenSubscriberView,
-    VoteView
+    VoteView,
+    StartArchiveView,
+    StopArchiveView,
+    EndEventView,
 )
 
 urlpatterns = [
@@ -14,5 +17,8 @@ urlpatterns = [
     url(r'^gettokensubscriber/$',
         GetTokenSubscriberView.as_view(),
         name='subscriber'),
-    url(r'^vote/$', VoteView.as_view(), name='vote')
+    url(r'^vote/$', VoteView.as_view(), name='vote'),
+    url(r'^startarchive/$', StartArchiveView.as_view(), name='startarchive'),
+    url(r'^stoparchive/$', StopArchiveView.as_view(), name='stoparchive'),
+    url(r'^endevent/$', EndEventView.as_view(), name='endevent'),
 ]

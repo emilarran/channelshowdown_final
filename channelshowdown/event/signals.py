@@ -16,7 +16,7 @@ def delete_unused_eventinfo_file(sender, instance, **kwargs):
     except Event.DoesNotExist:
         return False
 
-    new_pic = instance.profile_pic
+    new_pic = instance.event_image
     if (not old_pic == new_pic) & (not old_pic.url == '/media/profile_image/default.jpg'):
         if os.path.isfile(old_pic.path):
             os.remove(old_pic.path)
@@ -50,14 +50,12 @@ def send_entry_notification(sender, instance, **kwargs):
     except Entry.DoesNotExist:
         return False
     new_status = instance.entry_status
-    if (old_status != new_status) & (old_status == 0 | old_status == 1):
-        print('fourth')
+    if old_status != new_status:
         if new_status == 1:
-            print('fifth')
             status = " has been rejected"
         elif new_status == 2:
-            print('sixth')
             status = " has been accepted"
+
         subject = instance.event.event_name + " Entry Status"
-        body = "Your entry " + status + "."
-        send_entry_notification_email.delay(instance.pk, subject, body)
+        body = "Your entry to " + instance.event.event_name + status + "."
+        send_entry_notification_email.delay(instance.user.pk, subject, body)

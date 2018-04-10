@@ -123,6 +123,24 @@ class FinishedEventsView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class HistoryEventsView(View):
+    def post(self, request, **kwargs):
+        timezone = request.POST.get('timezone', None)
+        timezone = pytz.timezone(timezone)
+        username = request.POST.get('username', None)
+        user = User.objects.get(username=username)
+        events = list(Event.objects.filter(creator=user, status=2).values())
+        context = {
+            'events': events
+        }
+        for event in context['events']:
+            event['date_event'] = event['date_event'].astimezone(timezone)
+            event['date_event'] = event['date_event'].replace(tzinfo=None)
+            event['event_image'] = settings.MEDIA_URL + event['event_image']
+        return JsonResponse(context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class ApproveEntryView(View):
     def post(self, request, **kwargs):
         context = {}

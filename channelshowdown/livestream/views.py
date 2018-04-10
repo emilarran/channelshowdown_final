@@ -67,23 +67,6 @@ class StartLiveStreamView(View):
         else:
             return HttpResponseBadRequest("This event is finished.")
 
-    # def get(self, request, **kwargs):
-    #     session = opentok.create_session(media_mode=MediaModes.routed)
-    #     token = opentok.generate_token(session.session_id,
-    #                                    role=Roles.moderator)
-    #     archive = opentok.start_archive(session.session_id)
-    #     episode = Episode(event=request.GET['event'],
-    #                       session_id=session,
-    #                       archive_id=archive.id)
-    #     episode.save()
-    #     context = {
-    #         'event': request.GET['event'],
-    #         'session_id': session.session_id,
-    #         'token_id': token,
-    #         'archive_id': archive.id
-    #     }
-    #     return JsonResponse(context)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GetTokenPublisherView(View):
@@ -133,8 +116,7 @@ class GetTokenSubscriberView(View):
                         episode=event.episode,
                         user=user
                     )
-
-                except View.DoesNotExist:
+                except Viewer.DoesNotExist:
                     viewer = Viewer(episode=event.episode, user=user)
                     event.episode.views = event.episode.views + 1
                     viewer.save()

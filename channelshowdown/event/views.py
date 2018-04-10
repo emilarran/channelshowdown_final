@@ -236,7 +236,6 @@ class UploadEventImageView(View):
     def post(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
-        import pdb; pdb.set_trace()
         image = request.FILES['image']
         image_types = [
             'image/png',

@@ -13,6 +13,11 @@ NOTIFICATION_STATUS = (
     (0, 'unread'),
     (1, 'read')
 )
+DEVICE_STATUS = (
+    (0, 'inactive'),
+    (1, 'active')
+)
+
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User, related_name='userinfo')
@@ -50,3 +55,14 @@ class Notification(models.Model):
         choices=NOTIFICATION_STATUS,
         default=0
     )
+
+
+class Device(models.Model):
+    user = models.ForeignKey(User, related_name='devices')
+    device_id = models.CharField(
+        max_length=300,
+        default=None,
+        blank=True,
+        null=True
+    )
+    is_active = models.PositiveSmallIntegerField(default=1)

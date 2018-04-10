@@ -1,5 +1,4 @@
 """channelshowdown URL Configuration
-
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
 Examples:
@@ -25,6 +24,7 @@ urlpatterns = [
     url(r'^livestream/', include('livestream.urls')),
     url(r'^user/', include('userprofile.urls')),
     url(r'^event/', include('event.urls')),
+    url(r'fcm/', include('fcm.urls')),
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]
 

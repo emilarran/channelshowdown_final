@@ -1,9 +1,9 @@
 from channelshowdown.celery import app
 from django.utils import timezone
-from django.http import HttpResponse, JsonResponse
 from .models import Event
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+import datetime
 import logging
 # from django.
 
@@ -31,3 +31,30 @@ def send_entry_notification_email(user_id, subject, body):
         )
     except User.DoesNotExist:
         logging.warning("Tried to send email to non-existing user.")
+
+
+@app.task
+def send_notification_event_start():
+    now = timezone.now()
+    now = now + datetime.timedelta(hours=1)
+    events = Event.objects.filter(date_event__lte=now, status=0)
+    for event in events:
+        creator = User.objects.get(pk=event.creator_id)
+        email_list = [creator.email]
+        try:
+            contestant1 = User.objects.get(pk=event.contestant1_id)
+            email_list.append(contestant1.email)
+        except User.DoesNotExist:
+            pass
+        try:
+            contestant2 = User.objects.get(pk=event.contestant2_id)
+            email_list.append(contestant2.email)
+        except User.DoesNotExist:
+            pass
+        send_mail(
+            event.event_name + " is About to Start",
+            "Your event is about to start, please get ready.",
+            'channelfix.channelshowdown@gmail.com',
+            email_list,
+            fail_silently=False,
+        )

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from opentok import OpenTok, Roles, MediaModes
+from opentok import OpenTok, Roles, MediaModes, OutputModes
 from django.views.generic import View
 from django.http import (
     JsonResponse,
@@ -120,6 +120,7 @@ class GetTokenSubscriberView(View):
                     viewer = Viewer(episode=event.episode, user=user)
                     event.episode.views = event.episode.views + 1
                     viewer.save()
+                    event.episode.save()
 
                 context = {
                     'event_id': event.id,
@@ -142,18 +143,20 @@ class GetTokenSubscriberView(View):
 class VoteView(View):
     def post(self, request, **kwargs):
         username = request.POST.get('username', None)
-        contestant = request.POST.get('contestant', None)
+        contestant_name = request.POST.get('contestant', None)
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
         user = User.objects.get(username=username)
+        contestant = User.objects.get(username=contestant_name)
         viewer = Viewer.objects.get(user=user)
         if viewer.has_voted == 0:
-            if event.contestant1 is contestant:
+            if event.contestant1 == contestant:
                 event.votes_contestant1 = event.votes_contestant1 + 1
             else:
                 event.votes_contestant2 = event.votes_contestant2 + 1
 
             viewer.has_voted = 1
+            event.save()
             viewer.save()
             context = {
                 'status': "Vote successful"
@@ -168,29 +171,34 @@ class StartArchiveView(View):
     def post(self, request, **kwargs):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
-        archive = opentok.start_archive(
-            event.episode.session_id,
-            name=unicode(event.event_name)
-        )
-        event.episode.archive_id = archive.id
-        event.episode.save()
-        context = {
-            'status': "Archive started."
-        }
-        return JsonResponse(context)
+
+        if event.episode.archive_id is None:
+            archive = opentok.start_archive(
+                event.episode.session_id,
+                name=unicode(event.event_name),
+                output_mode=OutputModes.individual
+            )
+            event.episode.archive_id = archive.id
+            event.episode.save()
+            context = {
+                'status': "Archive started."
+            }
+            return JsonResponse(context)
+        else:
+            return HttpResponseBadRequest("Archive already started.")
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class StopArchiveView(View):
-    def post(self, request, **kwargs):
-        event_id = request.POST.get('event_id', None)
-        event = Event.objects.get(id=event_id)
-        archive_id = event.episode.archive_id
-        opentok.stop_archive(archive_id)
-        context = {
-            'status': "Archive stopped."
-        }
-        return JsonResponse(context)
+# @method_decorator(csrf_exempt, name='dispatch')
+# class StopArchiveView(View):
+#     def post(self, request, **kwargs):
+#         event_id = request.POST.get('event_id', None)
+#         event = Event.objects.get(id=event_id)
+#         archive_id = event.episode.archive_id
+#         opentok.stop_archive(archive_id)
+#         context = {
+#             'status': "Archive stopped."
+#         }
+#         return JsonResponse(context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -199,10 +207,12 @@ class EndEventView(View):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
         if event.status == 1:
+            archive_id = event.episode.archive_id
+            opentok.stop_archive(archive_id)
             event.status = 2
             event.save()
             context = {
-                'status': "Event ended."
+                'status': "Event ended. Archive stopped."
             }
             return JsonResponse(context)
         else:

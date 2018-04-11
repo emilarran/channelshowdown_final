@@ -55,7 +55,8 @@ def send_entry_notification(sender, instance, **kwargs):
             status = " has been rejected"
         elif new_status == 2:
             status = " has been accepted"
-
+        else:
+            status = " is being reviewed"
         subject = instance.event.event_name + " Entry Status"
         body = "Your entry to " + instance.event.event_name + status + "."
         send_entry_notification_email.delay(instance.user.pk, subject, body)

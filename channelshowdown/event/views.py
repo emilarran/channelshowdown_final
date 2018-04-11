@@ -100,6 +100,17 @@ class OngoingEventsView(View):
             'events': events
         }
         for event in context['events']:
+            event['creator_name'] = User.objects.get(pk=event['creator_id']).username
+            # event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            # event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            if event['contestant1_id'] is not None:
+                event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            else:
+                event['contestant1_name'] = ""
+            if event['contestant2_id'] is not None:
+                event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            else:
+                event['contestant2_name'] = ""
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']
@@ -116,6 +127,17 @@ class FinishedEventsView(View):
             'events': events
         }
         for event in context['events']:
+            event['creator_name'] = User.objects.get(pk=event['creator_id']).username
+            # event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            # event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            if event['contestant1_id'] is not None:
+                event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            else:
+                event['contestant1_name'] = ""
+            if event['contestant2_id'] is not None:
+                event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            else:
+                event['contestant2_name'] = ""
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']
@@ -134,6 +156,17 @@ class HistoryEventsView(View):
             'events': events
         }
         for event in context['events']:
+            event['creator_name'] = User.objects.get(pk=event['creator_id']).username
+            # event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            # event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            if event['contestant1_id'] is not None:
+                event['contestant1_name'] = User.objects.get(pk=event['contestant1_id']).username
+            else:
+                event['contestant1_name'] = ""
+            if event['contestant2_id'] is not None:
+                event['contestant2_name'] = User.objects.get(pk=event['contestant2_id']).username
+            else:
+                event['contestant2_name'] = ""
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']

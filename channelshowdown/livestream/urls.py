@@ -6,6 +6,7 @@ from .views import (
     VoteView,
     StartArchiveView,
     EndEventView,
+    SavedVideoView
 )
 
 urlpatterns = [
@@ -19,4 +20,7 @@ urlpatterns = [
     url(r'^vote/$', VoteView.as_view(), name='vote'),
     url(r'^startarchive/$', StartArchiveView.as_view(), name='startarchive'),
     url(r'^endevent/$', EndEventView.as_view(), name='endevent'),
+    url(r'^savedvideo/$',
+        SavedVideoView.as_view(),
+        name='savedvideos'),
 ]

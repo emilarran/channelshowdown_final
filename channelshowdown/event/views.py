@@ -10,7 +10,6 @@ from django.http import (
     HttpResponseBadRequest
 )
 from django.contrib.auth.models import User
-from django.utils.dateparse import parse_datetime
 from django.forms.models import model_to_dict
 from django.conf import settings
 from .models import Event, Entry
@@ -361,11 +360,17 @@ class MyEventView(View):
         return JsonResponse(context)
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class ChangeEventStatusView(View):
-#     def post(self, request, **kwargs):
-#         event 
-
-
-# @method_decorator(csrf_exempt, name='dispatch')
-# class
+@method_decorator(csrf_exempt, name='dispatch')
+class ResultView(View):
+    def post(self, request, **kwargs):
+        event_id = request.POST.get('event_id')
+        event = Event.objects.get(pk=event_id)
+        context = {
+            'contestant1_name': event.contestant1.username,
+            'contestant2_name': event.contestant2.username,
+            'contestant1_image': event.contestant1.userinfo.profile_pic.url,
+            'contestant2_image': event.contestant2.userinfo.profile_pic.url,
+            'contestant1_votes': event.votes_contestant1,
+            'contestant2_votes': event.votes_contestant2
+        }
+        return JsonResponse(context)

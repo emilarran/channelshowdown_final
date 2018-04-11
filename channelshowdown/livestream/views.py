@@ -176,7 +176,7 @@ class StartArchiveView(View):
             archive = opentok.start_archive(
                 event.episode.session_id,
                 name=unicode(event.event_name),
-                output_mode=OutputModes.individual
+                output_mode=OutputModes.composed
             )
             event.episode.archive_id = archive.id
             event.episode.save()
@@ -217,3 +217,17 @@ class EndEventView(View):
             return JsonResponse(context)
         else:
             return HttpResponseBadRequest("Invalid")
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SavedVideoView(View):
+    def post(self, request, **kwargs):
+        event_id = request.POST.get('event_id')
+        event = Event.objects.get(pk=event_id)
+        archive_id = event.episode.archive_id
+        archive = opentok.get_archive(archive_id)
+        video = archive.url
+        context = {
+            'video': video
+        }
+        return JsonResponse(context)

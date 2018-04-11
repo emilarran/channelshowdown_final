@@ -13,6 +13,7 @@ from .views import (
     UploadEventImageView,
     MyEventView,
     HistoryEventsView,
+    ResultView,
 )
 
 urlpatterns = [
@@ -53,4 +54,7 @@ urlpatterns = [
     url(r'^history/$',
         HistoryEventsView.as_view(),
         name='history'),
+    url(r'^result/$',
+        ResultView.as_view(),
+        name='result'),
 ]

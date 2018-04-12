@@ -29,7 +29,6 @@ class StartLiveStreamView(View):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
         context = {}
-        import pdb; pdb.set_trace()
         if event.status == 1 and event.contestant1 is not None and event.contestant2 is not None:
             try:
                 session_id = event.episode.session_id

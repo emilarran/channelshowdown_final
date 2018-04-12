@@ -23,7 +23,6 @@ class EventCreationForm(forms.Form):
         prize = self.cleaned_data['prize']
         date_event = self.cleaned_data['eventDate']
         timezone = self.cleaned_data['timezone']
-        print(timezone)
         try:
             date_event = parse_datetime(date_event)
         except Exception:

@@ -29,7 +29,8 @@ class StartLiveStreamView(View):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
         context = {}
-        if event.status == 1 or event.contestant1 is not None or event.contestant2 is not None:
+        import pdb; pdb.set_trace()
+        if event.status == 1 and event.contestant1 is not None and event.contestant2 is not None:
             try:
                 session_id = event.episode.session_id
                 views = event.episode.views
@@ -65,8 +66,14 @@ class StartLiveStreamView(View):
             return JsonResponse(context)
         elif event.status == 0:
             return HttpResponseBadRequest("This event is not yet live.")
-        elif event.contestant1 is not None and event.contestant2 is not None:
-            return HttpResponseBadRequest("Lacking contestants.")
+        elif event.contestant1 is None or event.contestant2 is None:
+            message = ""
+            if event.contestant1 is None:
+                message = message + "Lacking contestant 1. "
+            if event.contestant2 is None:
+                message = message + "Lacking contestant 2."
+            print(message)
+            return HttpResponseBadRequest(message)
         else:
             return HttpResponseBadRequest("This event is finished.")
 

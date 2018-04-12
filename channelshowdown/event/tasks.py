@@ -55,7 +55,7 @@ def send_entry_notification_email(user_id, subject, body):
         send_mail(
             subject,
             body,
-            'arranbaleva@gmail.com',
+            'channelshowdown2018@gmail.com',
             [user.email],
             fail_silently=False,
         )
@@ -84,7 +84,7 @@ def send_notification_event_start():
         send_mail(
             event.event_name + " is About to Start",
             "Your event is about to start, please get ready.",
-            'channelfix.channelshowdown@gmail.com',
+            'channelshowdown2018@gmail.com',
             email_list,
             fail_silently=False,
         )

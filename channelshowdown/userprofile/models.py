@@ -45,24 +45,3 @@ class UserInfo(models.Model):
         # # default=None
     )
     bio = models.CharField(max_length=300, default="", blank=True)
-
-
-class Notification(models.Model):
-    user = models.ForeignKey(User, related_name='notifications')
-    message = models.CharField(max_length=150, default="", blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-    status = models.PositiveSmallIntegerField(
-        choices=NOTIFICATION_STATUS,
-        default=0
-    )
-
-
-class Device(models.Model):
-    user = models.ForeignKey(User, related_name='devices')
-    device_id = models.CharField(
-        max_length=300,
-        default=None,
-        blank=True,
-        null=True
-    )
-    is_active = models.PositiveSmallIntegerField(default=1)

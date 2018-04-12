@@ -24,7 +24,6 @@ urlpatterns = [
     url(r'^livestream/', include('livestream.urls')),
     url(r'^user/', include('userprofile.urls')),
     url(r'^event/', include('event.urls')),
-    url(r'fcm/', include('fcm.urls')),
     url(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]
 

@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.conf import settings
 from .models import Event, Entry
+from livestream.models import Episode
 from .forms import EventCreationForm
 import pytz
 
@@ -113,6 +114,10 @@ class OngoingEventsView(View):
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']
+            try:
+                event['views'] = Episode.objects.get(event_id=event['id']).views
+            except Exception:
+                event['views'] = 0
         return JsonResponse(context)
 
 
@@ -140,6 +145,7 @@ class FinishedEventsView(View):
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']
+            event['views'] = Episode.objects.get(event_id=event['id']).views
         return JsonResponse(context)
 
 
@@ -169,6 +175,7 @@ class HistoryEventsView(View):
             event['date_event'] = event['date_event'].astimezone(timezone)
             event['date_event'] = event['date_event'].replace(tzinfo=None)
             event['event_image'] = settings.MEDIA_URL + event['event_image']
+            event['views'] = Episode.objects.get(event_id=event['id']).views
         return JsonResponse(context)
 
 
@@ -249,6 +256,12 @@ class CreatorEventProfileView(View):
         eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
         eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
         eventdict['creator_name'] = event.creator.username
+        event = Event.objects.get(id=eventdict['id'])
+        try:
+            eventdict['views'] = Episode.objects.get(event=event).views
+        except Exception:
+            eventdict['views'] = 0
+
         if eventdict['contestant1'] is not None:
             user = User.objects.get(pk=eventdict['contestant1'])
             eventdict['contestant1_name'] = user.username
@@ -275,6 +288,11 @@ class EventProfileView(View):
         event['date_event'] = event['date_event'].astimezone(timezone)
         event['date_event'] = event['date_event'].replace(tzinfo=None)
         event['event_image'] = settings.MEDIA_URL + event['event_image']
+        try:
+            event.episode.exists()
+            event['views'] = Episode.objects.get(event_id=event['id']).views
+        except Exception:
+            event['views'] = 0
         context = {
             'event': event
         }
@@ -344,6 +362,10 @@ class MyEventView(View):
         eventdict['date_event'] = eventdict['date_event'].astimezone(timezone)
         eventdict['date_event'] = eventdict['date_event'].replace(tzinfo=None)
         eventdict['creator_name'] = event.creator.username
+        try:
+            eventdict['views'] = Episode.objects.get(event=event).views
+        except Exception:
+            eventdict['views'] = 0
         if eventdict['contestant1'] is not None:
             user = User.objects.get(pk=eventdict['contestant1'])
             eventdict['contestant1_name'] = user.username

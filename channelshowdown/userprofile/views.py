@@ -12,7 +12,7 @@ from django.http import (
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import UserInfo, Device
+from .models import UserInfo
 # from .forms import FileForm
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -56,7 +56,6 @@ class LoginView(View):
     def post(self, request, **kwargs):
         username = request.POST.get('username', None)
         password = request.POST.get('password', None)
-        # device_id = request.POST.get('device_id', None)
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -69,22 +68,6 @@ class LoginView(View):
                 'lastName': user.last_name,
                 'bio': user.userinfo.bio,
             }
-            # device_check = Device.objects.filter(
-            #     device_id=device_id,
-            #     is_active=1
-            # )
-            # for device in device_check:
-            #     device.is_active = 0
-            #     device.save()
-            # device, created = Device.objects.get_or_create(
-            #     user=user,
-            #     device_id=device_id
-            # )
-            # if created:
-            #     device.save()
-            # else:
-            #     device.is_active = 1
-            #     device.save()
 
             if not user.userinfo.user_video:
                 context['user_video'] = '/media/profile_video/default_video.mp4'

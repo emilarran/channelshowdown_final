@@ -8,6 +8,7 @@ from django.http import (
     JsonResponse,
     HttpResponseBadRequest
 )
+from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import Episode, Viewer
 from event.models import Event
@@ -28,7 +29,7 @@ class StartLiveStreamView(View):
         event_id = request.POST.get('event_id', None)
         event = Event.objects.get(id=event_id)
         context = {}
-        if event.status == 1:
+        if event.status == 1 or event.contestant1 is not None or event.contestant2 is not None:
             try:
                 session_id = event.episode.session_id
                 views = event.episode.views
@@ -64,6 +65,8 @@ class StartLiveStreamView(View):
             return JsonResponse(context)
         elif event.status == 0:
             return HttpResponseBadRequest("This event is not yet live.")
+        elif event.contestant1 is not None and event.contestant2 is not None:
+            return HttpResponseBadRequest("Lacking contestants.")
         else:
             return HttpResponseBadRequest("This event is finished.")
 
@@ -149,7 +152,7 @@ class VoteView(View):
         user = User.objects.get(username=username)
         contestant = User.objects.get(username=contestant_name)
         viewer = Viewer.objects.get(user=user)
-        if viewer.has_voted == 0:
+        if viewer.has_voted == 0 and event.voting_status == 0:
             if event.contestant1 == contestant:
                 event.votes_contestant1 = event.votes_contestant1 + 1
             else:
@@ -188,19 +191,6 @@ class StartArchiveView(View):
             return HttpResponseBadRequest("Archive already started.")
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class StopArchiveView(View):
-#     def post(self, request, **kwargs):
-#         event_id = request.POST.get('event_id', None)
-#         event = Event.objects.get(id=event_id)
-#         archive_id = event.episode.archive_id
-#         opentok.stop_archive(archive_id)
-#         context = {
-#             'status': "Archive stopped."
-#         }
-#         return JsonResponse(context)
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class EndEventView(View):
     def post(self, request, **kwargs):
@@ -210,6 +200,7 @@ class EndEventView(View):
             archive_id = event.episode.archive_id
             opentok.stop_archive(archive_id)
             event.status = 2
+            event.date_ended = timezone.now()
             event.save()
             context = {
                 'status': "Event ended. Archive stopped."
@@ -227,6 +218,8 @@ class SavedVideoView(View):
         archive_id = event.episode.archive_id
         archive = opentok.get_archive(archive_id)
         video = archive.url
+        event.episode.views = event.episode.views + 1
+        event.episode.save()
         context = {
             'video': video
         }

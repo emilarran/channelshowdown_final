@@ -8,13 +8,19 @@ from django.contrib.auth.models import User
 EVENT_STATUS = (
     (0, 'Upcoming'),
     (1, 'Ongoing'),
-    (2, 'Finished')
+    (2, 'Finished'),
+    (3, 'Canceled')
 )
 
 ENTRY_STATUS = (
     (0, 'Pending'),
     (1, 'Rejected'),
     (2, 'Accepted')
+)
+
+VOTING_STATUS = (
+    (0, 'Open'),
+    (1, 'Closed')
 )
 
 
@@ -40,8 +46,13 @@ class Event(models.Model):
     status = models.PositiveSmallIntegerField(choices=EVENT_STATUS, default=0)
     event_image = models.ImageField(
         upload_to='event_image/',
-        default='event_image/default.png',
+        default='event_image/default.jpg',
     )
+    voting_status = models.PositiveSmallIntegerField(
+        choices=VOTING_STATUS,
+        default=0
+    )
+    date_ended = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         return self.event_name

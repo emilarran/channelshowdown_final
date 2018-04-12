@@ -19,13 +19,43 @@ def check_event_date():
 
 
 @app.task
+def check_unstarted_event():
+    now = timezone.now()
+    now = now - datetime.timedelta(minutes=10)
+    events = Event.objects.filter(date_event__lte=now, status=1)
+    for event in events:
+        try:
+            event.episode.exists()
+        except Exception:
+            event.status = 3
+            event.save()
+            send_entry_notification_email.delay(
+                event.creator_id,
+                event.event_name + " Status",
+                event.event_name + " cancelled."
+            )
+            if event.contestant1 is not None:
+                send_entry_notification_email.delay(
+                    event.contestant1_id,
+                    event.event_name + " Status",
+                    event.event_name + " cancelled."
+                )
+            if event.contestant2 is not None:
+                send_entry_notification_email.delay(
+                    event.contestant2_id,
+                    event.event_name + " Status",
+                    event.event_name + " cancelled."
+                )
+
+
+@app.task
 def send_entry_notification_email(user_id, subject, body):
     try:
         user = User.objects.get(pk=user_id)
         send_mail(
             subject,
             body,
-            'channelfix.channelshowdown@gmail.com',
+            'arranbaleva@gmail.com',
             [user.email],
             fail_silently=False,
         )
@@ -58,3 +88,13 @@ def send_notification_event_start():
             email_list,
             fail_silently=False,
         )
+
+
+@app.task
+def close_voting():
+    now = timezone.now()
+    now = now - datetime.timedelta(minutes=30)
+    events = Event.objects.filter(status=2, date_ended__lte=now)
+    for event in events:
+        event.voting_status = 1
+        event.save()

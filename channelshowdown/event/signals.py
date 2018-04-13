@@ -102,6 +102,8 @@ def send_results_email(sender, instance, **kwargs):
             loser_id = instance.contestant1_id
             body = "Winner: " + instance.contestant2.username + "\nLoser: " + instance.contestant1.username
         else:
+            winner_id = instance.contestant1_id
+            loser_id = instance.contestant2_id
             body = winner_body = loser_body = draw_body
 
         send_entry_notification_email.delay(

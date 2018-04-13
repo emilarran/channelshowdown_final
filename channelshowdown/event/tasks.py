@@ -93,7 +93,7 @@ def send_notification_event_start():
 @app.task
 def close_voting():
     now = timezone.now()
-    now = now - datetime.timedelta(minutes=30)
+    now = now - datetime.timedelta(minutes=2)
     events = Event.objects.filter(status=2, date_ended__lte=now)
     for event in events:
         event.voting_status = 1

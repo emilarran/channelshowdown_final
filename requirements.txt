@@ -14,7 +14,7 @@ future==0.16.0
 idna==2.6
 kombu==4.1.0
 opentok==2.6.0
-Pillow==5.0.0
+Pillow==8.3.2
 pycryptodome==3.4.11
 pyfcm==1.4.5
 python-jose==2.0.2
